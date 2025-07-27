@@ -1,0 +1,12 @@
+# Entornos virtuales de Python
+backend/venv/
+
+# Node.js
+frontend/node_modules/
+
+# Archivos de entorno
+*.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

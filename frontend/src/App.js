@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import ProductTable from './components/ProductTable';
+import AddProductForm from './components/AddProductForm';
 
 function App() {
-  const [mensaje, setMensaje] = useState('Cargando...');
+  const [productos, setProductos] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/')
-      .then(response => response.json())
-      .then(data => setMensaje(data.mensaje))
-      .catch(error => {
-        console.error('Error al conectar con la API:', error);
-        setMensaje('Error al conectar con la API');
-      });
+    fetch('http://localhost:5000/productos')
+      .then((res) => res.json())
+      .then((data) => setProductos(data))
+      .catch((error) => console.error('Error al obtener productos:', error));
   }, []);
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'Arial' }}>
-      <h1>Frontend de StockMaster</h1>
-      <p>{mensaje}</p>
+    <div>
+      <h1>StockMaster</h1>
+      <AddProductForm />
+      <ProductTable productos={productos} />
     </div>
   );
 }
 
 export default App;
+
