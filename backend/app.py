@@ -1,47 +1,47 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify
 from flask_cors import CORS
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+import os
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
 
-# Base de datos temporal (en memoria)
-productos = [
-    {'id': 1, 'nombre': 'Azúcar 1 kg', 'stock': 25},
-    {'id': 2, 'nombre': 'Harina 1 kg', 'stock': 15},
-    {'id': 3, 'nombre': 'Arroz 1 kg', 'stock': 30}
-]
+# Función para conectarse a la base de datos PostgreSQL
+def get_db_connection():
+    conn = psycopg2.connect(
+        dbname=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        host=os.getenv('DB_HOST'),
+        port=os.getenv('DB_PORT')
+    )
+    conn.set_client_encoding('UTF8')
+    return conn
 
 @app.route('/')
 def home():
     return jsonify({'mensaje': 'Bienvenido a StockMaster API'})
 
-@app.route('/productos', methods=['GET'])
+@app.route('/productos')
 def get_productos():
-    return jsonify(productos)
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)  # devuelve dicts en vez de tuplas
+        cur.execute('SELECT id, nombre, stock FROM productos')
+        productos = cur.fetchall()
+        cur.close()
+        conn.close()
 
-@app.route('/productos', methods=['POST'])
-def crear_producto():
-    nuevo = request.get_json()
-    nuevo['id'] = max(p['id'] for p in productos) + 1 if productos else 1
-    productos.append(nuevo)
-    return jsonify(nuevo), 201
+        return jsonify(productos)
 
-@app.route('/productos/<int:id>', methods=['PUT'])
-def editar_producto(id):
-    data = request.get_json()
-    for producto in productos:
-        if producto['id'] == id:
-            producto['nombre'] = data.get('nombre', producto['nombre'])
-            producto['stock'] = data.get('stock', producto['stock'])
-            return jsonify(producto)
-    return jsonify({'error': 'Producto no encontrado'}), 404
-
-@app.route('/productos/<int:id>', methods=['DELETE'])
-def eliminar_producto(id):
-    global productos
-    productos = [p for p in productos if p['id'] != id]
-    return jsonify({'mensaje': f'Producto {id} eliminado'})
+    except Exception as e:
+        print("ERROR AL CONSULTAR PRODUCTOS:", e)
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
-
