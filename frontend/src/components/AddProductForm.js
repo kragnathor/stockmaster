@@ -1,72 +1,55 @@
 import React, { useState } from 'react';
 
-const AddProductForm = () => {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    marca: '',
-    modelo: '',
-    precio: '',
-    stock: '',
-  });
+const API_URL = process.env.REACT_APP_API_URL;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+const AddProductForm = ({ onProductAdded }) => {
+  const [nombre, setNombre] = useState('');
+  const [stock, setStock] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Producto enviado:', formData);
-    // Aquí se puede agregar el POST al backend
+
+    const nuevoProducto = { nombre, stock: parseInt(stock, 10) };
+
+    try {
+      const response = await fetch(`${API_URL}/productos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevoProducto),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onProductAdded(data);
+        setNombre('');
+        setStock('');
+      } else {
+        console.error('Error al agregar producto:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error al conectar con el backend:', error);
+    }
   };
 
   return (
-    <div>
-      <h2>Agregar Nuevo Producto</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={formData.nombre}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="marca"
-          placeholder="Marca"
-          value={formData.marca}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="modelo"
-          placeholder="Modelo"
-          value={formData.modelo}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="precio"
-          placeholder="Precio"
-          value={formData.precio}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="stock"
-          placeholder="Stock"
-          value={formData.stock}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">Agregar</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <h2>Agregar Producto</h2>
+      <input
+        type="text"
+        placeholder="Nombre"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        required
+      />
+      <input
+        type="number"
+        placeholder="Stock"
+        value={stock}
+        onChange={(e) => setStock(e.target.value)}
+        required
+      />
+      <button type="submit">Agregar</button>
+    </form>
   );
 };
 
