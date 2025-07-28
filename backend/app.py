@@ -211,5 +211,93 @@ def eliminar_venta(id):
         return jsonify({'mensaje': 'Venta eliminada correctamente'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# ---------- Rutas para Gestión de Proveedores ----------
+
+@app.route('/proveedores', methods=['GET'])
+def obtener_proveedores():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id, nombre, contacto, telefono, email FROM proveedores')
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        proveedores = [{
+            'id': r[0],
+            'nombre': r[1],
+            'contacto': r[2],
+            'telefono': r[3],
+            'email': r[4]
+        } for r in rows]
+        return jsonify(proveedores)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/proveedores', methods=['POST'])
+def crear_proveedor():
+    try:
+        data = request.get_json()
+        nombre = data['nombre']
+        contacto = data['contacto']
+        telefono = data['telefono']
+        email = data['email']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'INSERT INTO proveedores (nombre, contacto, telefono, email) VALUES (%s, %s, %s, %s) RETURNING id',
+            (nombre, contacto, telefono, email)
+        )
+        nuevo_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'id': nuevo_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/proveedores/<int:id>', methods=['PUT'])
+def actualizar_proveedor(id):
+    try:
+        data = request.get_json()
+        nombre = data['nombre']
+        contacto = data['contacto']
+        telefono = data['telefono']
+        email = data['email']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'UPDATE proveedores SET nombre = %s, contacto = %s, telefono = %s, email = %s WHERE id = %s',
+            (nombre, contacto, telefono, email, id)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'mensaje': 'Proveedor actualizado correctamente'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/proveedores/<int:id>', methods=['DELETE'])
+def eliminar_proveedor(id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM proveedores WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'mensaje': 'Proveedor eliminado correctamente'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
