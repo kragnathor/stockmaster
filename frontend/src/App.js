@@ -12,11 +12,30 @@ function App() {
       .catch((error) => console.error('Error al obtener productos:', error));
   }, []);
 
+  // ✅ Función para agregar un producto nuevo
+  const handleProductAdded = (nuevoProducto) => {
+    setProductos([...productos, nuevoProducto]);
+  };
+
+  // ✅ Función para eliminar un producto
+  const handleProductDeleted = (id) => {
+    setProductos(productos.filter((p) => p.id !== id));
+  };
+
+  // ✅ Función para actualizar un producto
+  const handleProductUpdated = (productoActualizado) => {
+    setProductos(productos.map((p) => p.id === productoActualizado.id ? productoActualizado : p));
+  };
+
   return (
-    <div>
-      <h1>StockMaster</h1>
-      <AddProductForm />
-      <ProductTable productos={productos} />
+    <div className="container mt-5">
+      <h1 className="mb-4">StockMaster</h1>
+      <AddProductForm onProductAdded={handleProductAdded} />
+      <ProductTable
+        productos={productos}
+        onDelete={handleProductDeleted}
+        onUpdate={handleProductUpdated}
+      />
     </div>
   );
 }

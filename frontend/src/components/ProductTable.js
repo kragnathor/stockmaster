@@ -39,10 +39,10 @@ const ProductTable = ({ productos, onDelete, onUpdate }) => {
   };
 
   return (
-    <div>
-      <h2>Stock Actual</h2>
-      <table>
-        <thead>
+    <div className="container mt-4">
+      <h2 className="mb-4">Stock Actual</h2>
+      <table className="table table-striped table-hover">
+        <thead className="table-dark">
           <tr>
             <th>Nombre</th>
             <th>Stock</th>
@@ -55,14 +55,17 @@ const ProductTable = ({ productos, onDelete, onUpdate }) => {
               <td>{producto.nombre}</td>
               <td>{producto.stock}</td>
               <td>
-                <button onClick={() => handleDelete(producto.id)}>Eliminar</button>
                 <button
+                  className="btn btn-danger btn-sm me-2"
+                  onClick={() => handleDelete(producto.id)}
+                >
+                  Eliminar
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
                   onClick={() => {
-                    const nuevoStock = prompt(
-                      'Nuevo stock:',
-                      producto.stock
-                    );
-                    if (nuevoStock !== null) {
+                    const nuevoStock = prompt('Nuevo stock:', producto.stock);
+                    if (nuevoStock !== null && !isNaN(nuevoStock)) {
                       handleUpdate(producto.id, parseInt(nuevoStock, 10));
                     }
                   }}
