@@ -10,13 +10,7 @@ const AddSupplierForm = ({ onSupplierAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const nuevoProveedor = {
-      nombre,
-      contacto,
-      telefono,
-      email,
-    };
+    const nuevoProveedor = { nombre, contacto, telefono, email };
 
     try {
       const response = await fetch(`${API_URL}/proveedores`, {
@@ -27,7 +21,7 @@ const AddSupplierForm = ({ onSupplierAdded }) => {
 
       if (response.ok) {
         const data = await response.json();
-        onSupplierAdded(data);
+        onSupplierAdded({ id: data.id, ...nuevoProveedor });
         setNombre('');
         setContacto('');
         setTelefono('');
@@ -41,9 +35,9 @@ const AddSupplierForm = ({ onSupplierAdded }) => {
   };
 
   return (
-    <form className="mb-4" onSubmit={handleSubmit}>
-      <h2 className="mb-3">Agregar Proveedor</h2>
-      <div className="mb-2">
+    <form onSubmit={handleSubmit} className="mb-4">
+      <h2>Agregar Proveedor</h2>
+      <div className="mb-3">
         <input
           type="text"
           className="form-control"
@@ -53,36 +47,37 @@ const AddSupplierForm = ({ onSupplierAdded }) => {
           required
         />
       </div>
-      <div className="mb-2">
+      <div className="mb-3">
         <input
           type="text"
           className="form-control"
           placeholder="Contacto"
           value={contacto}
           onChange={(e) => setContacto(e.target.value)}
+          required
         />
       </div>
-      <div className="mb-2">
+      <div className="mb-3">
         <input
           type="text"
           className="form-control"
           placeholder="Teléfono"
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
+          required
         />
       </div>
-      <div className="mb-2">
+      <div className="mb-3">
         <input
           type="email"
           className="form-control"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
       </div>
-      <button type="submit" className="btn btn-primary">
-        Agregar
-      </button>
+      <button type="submit" className="btn btn-primary">Agregar Proveedor</button>
     </form>
   );
 };

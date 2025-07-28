@@ -1,82 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import ProductTable from './components/ProductTable';
-import AddProductForm from './components/AddProductForm';
-import SupplierTable from './components/SupplierTable';
-import AddSupplierForm from './components/AddSupplierForm';
-
-const API_URL = process.env.REACT_APP_API_URL;
+// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import VentasPorProducto from './components/VentasPorProducto';
+import VentasPorFecha from './components/VentasPorFecha';
+import ProductosView from './views/ProductosView';
+import ProveedoresView from './views/ProveedoresView';
+import Home from './views/Home';
 
 function App() {
-  const [productos, setProductos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
-
-  // ----- Productos -----
-  const fetchProductos = () => {
-    fetch(`${API_URL}/productos`)
-      .then((res) => res.json())
-      .then((data) => setProductos(data))
-      .catch((err) => console.error('Error al obtener productos:', err));
-  };
-
-  const handleProductoAgregado = (nuevoProducto) => {
-    setProductos([...productos, nuevoProducto]);
-  };
-
-  const handleProductoEliminado = (id) => {
-    setProductos(productos.filter((p) => p.id !== id));
-  };
-
-  const handleProductoActualizado = (actualizado) => {
-    setProductos(productos.map((p) => (p.id === actualizado.id ? actualizado : p)));
-  };
-
-  // ----- Proveedores -----
-  const fetchProveedores = () => {
-    fetch(`${API_URL}/proveedores`)
-      .then((res) => res.json())
-      .then((data) => setProveedores(data))
-      .catch((err) => console.error('Error al obtener proveedores:', err));
-  };
-
-  const handleProveedorAgregado = (nuevoProveedor) => {
-    setProveedores([...proveedores, nuevoProveedor]);
-  };
-
-  const handleProveedorEliminado = (id) => {
-    setProveedores(proveedores.filter((p) => p.id !== id));
-  };
-
-  const handleProveedoresActualizados = () => {
-    fetchProveedores(); // recarga todos los proveedores desde la base de datos
-  };
-
-  useEffect(() => {
-    fetchProductos();
-    fetchProveedores();
-  }, []);
-
   return (
-    <div className="container mt-4">
-      <h1 className="mb-4">StockMaster</h1>
+    <Router>
+      <div className="container mt-4">
+        <h1 className="text-center mb-4">StockMaster</h1>
 
-      <AddProductForm onProductAdded={handleProductoAgregado} />
-      <ProductTable
-        productos={productos}
-        onDelete={handleProductoEliminado}
-        onUpdate={handleProductoActualizado}
-      />
+        <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4 rounded shadow-sm">
+          <div className="container-fluid">
+            <Link className="navbar-brand" to="/">Inicio</Link>
+            <div className="collapse navbar-collapse">
+              <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/productos">Productos</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/proveedores">Proveedores</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/ventas-producto">Reporte por Producto</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/ventas-fecha">Reporte por Fecha</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
 
-      <hr className="my-5" />
-
-      <AddSupplierForm onSupplierAdded={handleProveedorAgregado} />
-      <SupplierTable
-        proveedores={proveedores}
-        onDelete={handleProveedorEliminado}
-        onUpdate={handleProveedoresActualizados}
-      />
-    </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/productos" element={<ProductosView />} />
+          <Route path="/proveedores" element={<ProveedoresView />} />
+          <Route path="/ventas-producto" element={<VentasPorProducto />} />
+          <Route path="/ventas-fecha" element={<VentasPorFecha />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
 export default App;
+
+
+
 
