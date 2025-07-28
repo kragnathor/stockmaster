@@ -32,24 +32,34 @@ const AddProductForm = ({ onProductAdded }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Agregar Producto</h2>
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        required
-      />
-      <input
-        type="number"
-        placeholder="Stock"
-        value={stock}
-        onChange={(e) => setStock(e.target.value)}
-        required
-      />
-      <button type="submit">Agregar</button>
-    </form>
+    <div className="container mt-4">
+      <h2 className="mb-3">Agregar Producto</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Nombre del producto"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <input
+            type="number"
+            className="form-control"
+            placeholder="Stock"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-success">
+          Agregar
+        </button>
+      </form>
+    </div>
   );
 };
 
