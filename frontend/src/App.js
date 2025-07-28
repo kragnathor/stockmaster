@@ -1,48 +1,79 @@
 import React, { useEffect, useState } from 'react';
 import ProductTable from './components/ProductTable';
 import AddProductForm from './components/AddProductForm';
+import SupplierTable from './components/SupplierTable';
+import AddSupplierForm from './components/AddSupplierForm';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
   const [productos, setProductos] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
 
-  useEffect(() => {
-    fetch('http://localhost:5000/productos')
+  // ----- Productos -----
+  const fetchProductos = () => {
+    fetch(`${API_URL}/productos`)
       .then((res) => res.json())
       .then((data) => setProductos(data))
-      .catch((error) => console.error('Error al obtener productos:', error));
+      .catch((err) => console.error('Error al obtener productos:', err));
+  };
+
+  const handleProductoAgregado = (nuevoProducto) => {
+    setProductos([...productos, nuevoProducto]);
+  };
+
+  const handleProductoEliminado = (id) => {
+    setProductos(productos.filter((p) => p.id !== id));
+  };
+
+  const handleProductoActualizado = (actualizado) => {
+    setProductos(productos.map((p) => (p.id === actualizado.id ? actualizado : p)));
+  };
+
+  // ----- Proveedores -----
+  const fetchProveedores = () => {
+    fetch(`${API_URL}/proveedores`)
+      .then((res) => res.json())
+      .then((data) => setProveedores(data))
+      .catch((err) => console.error('Error al obtener proveedores:', err));
+  };
+
+  const handleProveedorAgregado = (nuevoProveedor) => {
+    setProveedores([...proveedores, nuevoProveedor]);
+  };
+
+  const handleProveedorEliminado = (id) => {
+    setProveedores(proveedores.filter((p) => p.id !== id));
+  };
+
+  const handleProveedoresActualizados = () => {
+    fetchProveedores(); // recarga todos los proveedores desde la base de datos
+  };
+
+  useEffect(() => {
+    fetchProductos();
+    fetchProveedores();
   }, []);
 
-  const handleProductAdded = (producto) => {
-    setProductos([...productos, producto]);
-  };
-
-  const handleProductDeleted = (id) => {
-    setProductos(productos.filter((producto) => producto.id !== id));
-  };
-
-  const handleProductUpdated = (updatedProduct) => {
-    setProductos(
-      productos.map((producto) =>
-        producto.id === updatedProduct.id ? updatedProduct : producto
-      )
-    );
-  };
-
   return (
-    <div className="container mt-5">
-      <h1 className="text-center mb-4">📦 StockMaster</h1>
-      <div className="row">
-        <div className="col-md-6">
-          <AddProductForm onProductAdded={handleProductAdded} />
-        </div>
-        <div className="col-md-6">
-          <ProductTable
-            productos={productos}
-            onDelete={handleProductDeleted}
-            onUpdate={handleProductUpdated}
-          />
-        </div>
-      </div>
+    <div className="container mt-4">
+      <h1 className="mb-4">StockMaster</h1>
+
+      <AddProductForm onProductAdded={handleProductoAgregado} />
+      <ProductTable
+        productos={productos}
+        onDelete={handleProductoEliminado}
+        onUpdate={handleProductoActualizado}
+      />
+
+      <hr className="my-5" />
+
+      <AddSupplierForm onSupplierAdded={handleProveedorAgregado} />
+      <SupplierTable
+        proveedores={proveedores}
+        onDelete={handleProveedorEliminado}
+        onUpdate={handleProveedoresActualizados}
+      />
     </div>
   );
 }
