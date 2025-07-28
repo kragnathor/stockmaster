@@ -103,5 +103,113 @@ def delete_producto(id):
         print("ERROR AL ELIMINAR PRODUCTO:", e)
         return jsonify({'error': str(e)}), 500
 
+
+# ---------- Rutas para Gestión de Ventas ----------
+
+@app.route('/ventas', methods=['GET'])
+def obtener_ventas():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id, producto_id, cantidad, fecha, total FROM ventas')
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        ventas = [{
+            'id': r[0],
+            'producto_id': r[1],
+            'cantidad': r[2],
+            'fecha': r[3],
+            'total': float(r[4])
+        } for r in rows]
+        return jsonify(ventas)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/ventas/<int:id>', methods=['GET'])
+def obtener_venta(id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT id, producto_id, cantidad, fecha, total FROM ventas WHERE id = %s', (id,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if row:
+            venta = {
+                'id': row[0],
+                'producto_id': row[1],
+                'cantidad': row[2],
+                'fecha': row[3],
+                'total': float(row[4])
+            }
+            return jsonify(venta)
+        else:
+            return jsonify({'error': 'Venta no encontrada'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/ventas', methods=['POST'])
+def crear_venta():
+    try:
+        data = request.get_json()
+        producto_id = data['producto_id']
+        cantidad = data['cantidad']
+        fecha = data['fecha']
+        total = data['total']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'INSERT INTO ventas (producto_id, cantidad, fecha, total) VALUES (%s, %s, %s, %s) RETURNING id',
+            (producto_id, cantidad, fecha, total)
+        )
+        nueva_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'id': nueva_id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/ventas/<int:id>', methods=['PUT'])
+def actualizar_venta(id):
+    try:
+        data = request.get_json()
+        producto_id = data['producto_id']
+        cantidad = data['cantidad']
+        fecha = data['fecha']
+        total = data['total']
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            'UPDATE ventas SET producto_id = %s, cantidad = %s, fecha = %s, total = %s WHERE id = %s',
+            (producto_id, cantidad, fecha, total, id)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'mensaje': 'Venta actualizada correctamente'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/ventas/<int:id>', methods=['DELETE'])
+def eliminar_venta(id):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM ventas WHERE id = %s', (id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({'mensaje': 'Venta eliminada correctamente'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=True)

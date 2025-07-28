@@ -12,30 +12,37 @@ function App() {
       .catch((error) => console.error('Error al obtener productos:', error));
   }, []);
 
-  // ✅ Función para agregar un producto nuevo
-  const handleProductAdded = (nuevoProducto) => {
-    setProductos([...productos, nuevoProducto]);
+  const handleProductAdded = (producto) => {
+    setProductos([...productos, producto]);
   };
 
-  // ✅ Función para eliminar un producto
   const handleProductDeleted = (id) => {
-    setProductos(productos.filter((p) => p.id !== id));
+    setProductos(productos.filter((producto) => producto.id !== id));
   };
 
-  // ✅ Función para actualizar un producto
-  const handleProductUpdated = (productoActualizado) => {
-    setProductos(productos.map((p) => p.id === productoActualizado.id ? productoActualizado : p));
+  const handleProductUpdated = (updatedProduct) => {
+    setProductos(
+      productos.map((producto) =>
+        producto.id === updatedProduct.id ? updatedProduct : producto
+      )
+    );
   };
 
   return (
     <div className="container mt-5">
-      <h1 className="mb-4">StockMaster</h1>
-      <AddProductForm onProductAdded={handleProductAdded} />
-      <ProductTable
-        productos={productos}
-        onDelete={handleProductDeleted}
-        onUpdate={handleProductUpdated}
-      />
+      <h1 className="text-center mb-4">📦 StockMaster</h1>
+      <div className="row">
+        <div className="col-md-6">
+          <AddProductForm onProductAdded={handleProductAdded} />
+        </div>
+        <div className="col-md-6">
+          <ProductTable
+            productos={productos}
+            onDelete={handleProductDeleted}
+            onUpdate={handleProductUpdated}
+          />
+        </div>
+      </div>
     </div>
   );
 }
